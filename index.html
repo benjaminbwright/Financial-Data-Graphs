@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Financial Data Graphs</title>
 
@@ -12,10 +12,65 @@
 <body>
 
     <!-- 10 year price graph -->
+    <div id="ten-year-prices">
+
+    </div>
+    <!-- End 10 year price graph -->
+
     <!-- 10 year cash flow graph -->
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript">
+        $(document).ready(function() {
+            var layout = {
+                title: 'Closing Price',
+                xaxis: {
+                    range: ["2019-06-11", "2019-06-19"],
+                    type: 'date'
+                },
+                yaxis: {
+                    range: [190, 200],
+                    type: 'linear'
+                },
+            };
+
+            // Configure data trace
+            var trace = {
+                type: 'scatter',
+                mode: 'lines',
+                name: 'AAPL Low',
+                // Get this data from the api
+                x: [],
+                y: [],
+                line: {
+                    color: '#7F7F7F'
+                }
+            }
+
+            $.ajax({
+                method: "GET",
+                url: "https://financialmodelingprep.com/api/v3/historical-price-full/AAPL?timeseries=1000"
+            }).then(function(response) {
+                var tenYearPriceTitle = $("<h2>");
+                tenYearPriceTitle.text(response.symbol);
+                $("#ten-year-prices").before(tenYearPriceTitle);
+                trace.name = response.symbol;
+                for (let i = 0; i < response.historical.length; i++) {
+                    trace.x.push(response.historical[i].date);
+                    trace.y.push(response.historical[i].close);
+                }
+
+                // Add data trace to an array
+                var data = [trace];
+
+                // Plot the graph
+                Plotly.newPlot('ten-year-prices', data, layout);
+            });
+
+            console.log(trace);
+
+        });
     </script>
 </body>
 
